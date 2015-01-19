@@ -83,7 +83,7 @@ CODE;
      * @param string $paramsDefinition
      * @return \Mockery\Expectation
      */
-    public function mock($functionName, $paramsDefinition = null)
+    public function override($functionName, $paramsDefinition = null)
     {
         if (!function_exists($this->namespace . '\\' . $functionName)) {
             $function = new \ReflectionFunction('\\'.$functionName);
