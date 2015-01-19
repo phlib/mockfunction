@@ -95,7 +95,13 @@ CODE;
 
     public function shouldReceive($functionName)
     {
-        $this->mock($functionName);
+        if (!function_exists($this->namespace . '\\' . $functionName)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'No call to override has been made for "%s"'
+                )
+            );
+        }
 
         if (!isset(self::$mocks[$this->namespace][$functionName])) {
             $className = $this->namespace.'\\MockFunction_'.$functionName;
