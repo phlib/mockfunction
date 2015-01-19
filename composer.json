@@ -1,0 +1,21 @@
+{
+    "name": "phlib/mockfunction",
+    "description": "Library to aid the testing of global functions, by creating an instance of the function in the namespace",
+    "authors": [
+        {
+            "name": "James Dempster"
+        }
+    ],
+    "require": {
+        "php": "~5.4",
+        "mockery/mockery": "0.9.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phlib\\": "src"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.4"
+    }
+}
