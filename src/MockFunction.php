@@ -62,6 +62,9 @@ namespace $targetNamespace;
 
 function $functionName($paramsDefinition)
 {
+    if (!isset($self::\$mocks['$targetNamespace']['$functionName'])) {
+        return \\$functionName($paramsCall);
+    }
     return $self::\$mocks['$targetNamespace']['$functionName']->$functionName($paramsCall);
 }
 
@@ -80,12 +83,19 @@ CODE;
      * @param string $paramsDefinition
      * @return \Mockery\Expectation
      */
-    public function shouldReceive($functionName, $paramsDefinition = null)
+    public function mock($functionName, $paramsDefinition = null)
     {
         if (!function_exists($this->namespace . '\\' . $functionName)) {
             $function = new \ReflectionFunction('\\'.$functionName);
             eval($this->getCode($function, $paramsDefinition));
         }
+
+        return $this;
+    }
+
+    public function shouldReceive($functionName)
+    {
+        $this->mock($functionName);
 
         if (!isset(self::$mocks[$this->namespace][$functionName])) {
             $className = $this->namespace.'\\MockFunction_'.$functionName;
@@ -93,5 +103,10 @@ CODE;
         }
 
         return self::$mocks[$this->namespace][$functionName]->shouldReceive($functionName);
+    }
+
+    public function __destruct()
+    {
+        self::$mocks[$this->namespace] = null;
     }
 }

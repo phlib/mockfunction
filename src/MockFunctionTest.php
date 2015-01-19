@@ -88,8 +88,9 @@ class MockFunctionTest extends \PHPUnit_Framework_TestCase
 
     public function testDefineParams()
     {
+        $this->functions->mock('stream_set_timeout', '$stream, $seconds, $microseconds = 0');
         $this->functions
-            ->shouldReceive('stream_set_timeout', '$stream, $seconds, $microseconds = 0')
+            ->shouldReceive('stream_set_timeout')
             ->once()
             ->with('stream', 2, 0)
             ->andReturn(true)
