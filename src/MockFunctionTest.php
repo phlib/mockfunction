@@ -8,7 +8,7 @@ class MockFunctionTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var \MockFunction
+     * @var MockFunction
      */
     protected $functions;
 
@@ -84,5 +84,17 @@ class MockFunctionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame([], $except);
 
         $this->assertTrue(true);
+    }
+
+    public function testDefineParams()
+    {
+        $this->functions
+            ->shouldReceive('stream_set_timeout', '$stream, $seconds, $microseconds = 0')
+            ->once()
+            ->with('stream', 2, 0)
+            ->andReturn(true)
+        ;
+
+        stream_set_timeout('stream', 2);
     }
 }

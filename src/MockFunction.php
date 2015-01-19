@@ -46,12 +46,14 @@ class MockFunction
         return implode(', ', $params);
     }
 
-    public function getCode(\ReflectionFunction $function)
+    public function getCode(\ReflectionFunction $function, $paramsDefinition = null)
     {
         $targetNamespace  = $this->namespace;
         $functionName     = $function->getName();
-        $paramsDefinition = $this->getParamsDefinition($function);
-        $paramsCall       = $this->getParamsCall($function);
+        if (!$paramsDefinition) {
+            $paramsDefinition = $this->getParamsDefinition($function);
+        }
+        $paramsCall = $this->getParamsCall($function);
 
         $self = '\\' . __CLASS__;
 
@@ -75,13 +77,14 @@ CODE;
 
     /**
      * @param string $functionName
+     * @param string $paramsDefinition
      * @return \Mockery\Expectation
      */
-    public function shouldReceive($functionName)
+    public function shouldReceive($functionName, $paramsDefinition = null)
     {
         if (!function_exists($this->namespace . '\\' . $functionName)) {
             $function = new \ReflectionFunction('\\'.$functionName);
-            eval($this->getCode($function));
+            eval($this->getCode($function, $paramsDefinition));
         }
 
         if (!isset(self::$mocks[$this->namespace][$functionName])) {
