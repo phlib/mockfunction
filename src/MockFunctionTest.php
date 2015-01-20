@@ -3,6 +3,7 @@
 namespace Phlib;
 
 require_once './MockFunction.php';
+require_once './MockFunctionGenerator.php';
 
 class MockFunctionTest extends \PHPUnit_Framework_TestCase
 {
@@ -15,6 +16,16 @@ class MockFunctionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->functions = new MockFunction(__NAMESPACE__);
+        $this->functions
+            ->override('fclose')
+            ->override('socket_select')
+            ->override('stream_set_timeout', '$stream, $seconds, $microseconds = 0')
+        ;
+    }
+
+    public function tearDown()
+    {
+        $this->functions = null;
     }
 
     public function testFclose1()
@@ -88,7 +99,6 @@ class MockFunctionTest extends \PHPUnit_Framework_TestCase
 
     public function testDefineParams()
     {
-        $this->functions->mock('stream_set_timeout', '$stream, $seconds, $microseconds = 0');
         $this->functions
             ->shouldReceive('stream_set_timeout')
             ->once()

@@ -2,12 +2,39 @@
 
 namespace Phlib;
 
+/**
+ * Class MockFunction
+ * @package Phlib
+ */
 class MockFunction
 {
+    /**
+     * @var array
+     */
     public static $mocks = [];
 
+    /**
+     * @var string
+     */
     protected $namespace;
 
+    /**
+     * @param $namespace
+     * @param $function
+     * @return bool
+     */
+    public static function getMock($namespace, $function)
+    {
+        if (isset(self::$mocks[$namespace][$function])) {
+            return self::$mocks[$namespace][$function];
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $namespace
+     */
     public function __construct($namespace)
     {
         $namespace = trim($namespace, '\\');
@@ -15,102 +42,53 @@ class MockFunction
         self::$mocks[$namespace] = [];
     }
 
-    public function getParamsDefinition(\ReflectionFunction $function)
-    {
-        $params = [];
-        $functionParams = $function->getParameters();
-        foreach ($functionParams as $param) {
-            $paramDef = $param->isPassedByReference() ? '&' : '';
-            $paramDef .= '$' . $param->getName();
-
-            if ($param->isDefaultValueAvailable()) {
-                $paramDef .= ' = ' . var_export($param->getDefaultValue(), true);
-            } elseif ($param->isOptional()) {
-                $paramDef .= ' = null';
-            }
-
-            $params[] = $paramDef;
-        }
-
-        return implode(', ', $params);
-    }
-
-    public function getParamsCall(\ReflectionFunction $function)
-    {
-        $params = [];
-        $functionParams = $function->getParameters();
-        foreach ($functionParams as $param) {
-            $params[] = '$' . $param->getName();
-        }
-
-        return implode(', ', $params);
-    }
-
-    public function getCode(\ReflectionFunction $function, $paramsDefinition = null)
-    {
-        $targetNamespace  = $this->namespace;
-        $functionName     = $function->getName();
-        if (!$paramsDefinition) {
-            $paramsDefinition = $this->getParamsDefinition($function);
-        }
-        $paramsCall = $this->getParamsCall($function);
-
-        $self = '\\' . __CLASS__;
-
-        $code = <<<CODE
-namespace $targetNamespace;
-
-function $functionName($paramsDefinition)
-{
-    if (!isset($self::\$mocks['$targetNamespace']['$functionName'])) {
-        return \\$functionName($paramsCall);
-    }
-    return $self::\$mocks['$targetNamespace']['$functionName']->$functionName($paramsCall);
-}
-
-class MockFunction_$functionName
-{
-    public function $functionName($paramsDefinition) {}
-}
-
-CODE;
-
-        return $code;
-    }
-
     /**
-     * @param string $functionName
-     * @param string $paramsDefinition
-     * @return \Mockery\Expectation
+     * @param $function
+     * @param null $paramsDefinition
+     * @return $this
      */
-    public function override($functionName, $paramsDefinition = null)
+    public function override($function, $paramsDefinition = null)
     {
-        if (!function_exists($this->namespace . '\\' . $functionName)) {
-            $function = new \ReflectionFunction('\\'.$functionName);
-            eval($this->getCode($function, $paramsDefinition));
+        $generator = new MockFunctionGenerator(
+            $this->namespace,
+            $function
+        );
+        if ($paramsDefinition) {
+            $generator->setParamsDefinitionOverride($paramsDefinition);
         }
+        $generator->override();
 
         return $this;
     }
 
-    public function shouldReceive($functionName)
+    /**
+     * @param $function
+     * @return \Mockery\Expectation
+     */
+    public function shouldReceive($function)
     {
-        if (!function_exists($this->namespace . '\\' . $functionName)) {
+        if (!function_exists($this->namespace . '\\' . $function)) {
             throw new \RuntimeException(
                 sprintf(
-                    'No call to override has been made for "%s"'
+                    'No call to override has been made for "%s"',
+                    $function
                 )
             );
         }
 
-        if (!isset(self::$mocks[$this->namespace][$functionName])) {
-            $className = $this->namespace.'\\MockFunction_'.$functionName;
-            self::$mocks[$this->namespace][$functionName] = \Mockery::mock($className);
+        $mock = self::getMock($this->namespace, $function);
+        if (!$mock) {
+            $className = $this->namespace . '\\Mockery_' . $function;
+            $mock = \Mockery::mock($className);
+            self::$mocks[$this->namespace][$function] = $mock;
         }
 
-        return self::$mocks[$this->namespace][$functionName]->shouldReceive($functionName);
+        return $mock->shouldReceive($function);
     }
 
+    /**
+     *
+     */
     public function __destruct()
     {
         self::$mocks[$this->namespace] = null;
