@@ -2,9 +2,6 @@
 
 namespace Phlib;
 
-require_once './MockFunction.php';
-require_once './MockFunctionGenerator.php';
-
 class MockFunctionTest extends \PHPUnit_Framework_TestCase
 {
 

@@ -1,5 +1,6 @@
 {
     "name": "phlib/mockfunction",
+    "version": "1.0.0",
     "description": "Library to aid the testing of global functions, by creating an instance of the function in the namespace",
     "authors": [
         {
