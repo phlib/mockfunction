@@ -1,6 +1,8 @@
 <?php
 
-namespace Phlib;
+namespace Phlib\Tests;
+
+use Phlib\MockFunction;
 
 class MockFunctionTest extends \PHPUnit_Framework_TestCase
 {
