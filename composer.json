@@ -2,6 +2,7 @@
     "name": "phlib/mockfunction",
     "version": "1.0.0",
     "description": "Library to aid the testing of global functions, by creating an instance of the function in the namespace",
+    "license": "LGPL-3.0",
     "authors": [
         {
             "name": "James Dempster"
