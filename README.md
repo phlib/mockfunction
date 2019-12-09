@@ -6,6 +6,10 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/phlib/mockfunction.svg)](https://packagist.org/packages/phlib/mockfunction)
 ![Licence](https://img.shields.io/github/license/phlib/mockfunction.svg)
 
+## Abandoned
+
+This package is abandoned and no longer supported. We recommend trying [php-mock/php-mock-phpunit](https://github.com/php-mock/php-mock-phpunit).
+
 ## License
 
 This package is free software: you can redistribute it and/or modify
